@@ -18,19 +18,20 @@ def save_model_unique(model, model_name="bst_diabetes_classifier"):
         model_name: name of model
 
     Returns:
-        str: Full path to saved file
+        str: name of file which contains model
     """
-    # default path for storing models
-    base_path = os.path.join("..", "models")
 
     # Base name of the file
-    base_filename = os.path.join(base_path, f"{model_name}.pkl")
+    model_file = os.path.join(f"{model_name}.pkl")
+    # Base path
+    base_path = os.path.join("..", "models")
+    base_filename = os.path.join(base_path, model_file)
 
     # Save if name available
     if not os.path.exists(base_filename):
         joblib.dump(model, base_filename)
         print(f"Model zapisany jako: {base_filename}")
-        return base_filename
+        return model_file
 
     # Find first available name and save
     counter = 1
@@ -39,19 +40,21 @@ def save_model_unique(model, model_name="bst_diabetes_classifier"):
     while os.path.exists(new_filename):
         counter += 1
         new_filename = os.path.join(base_path, f"{model_name}_{counter}.pkl")
+    model_file = os.path.join(f"{model_name}_{counter}.pkl")
     joblib.dump(model, new_filename)
-    print(f"Model zapisany jako: {new_filename}")
-    return new_filename
+    print(f"Model zapisano: {new_filename}")
+    return model_file
 
-def save_training_stats(report, model_name="bst_diabetes_classifier"):
+
+
+def save_training_stats(report, file_name):
     """
     Saves model-trained statistics to JSON.
 
     Args:
         report: classification_report stored as dict
-        model_name: name of model
+        file_name: name of file that contains model
     """
-
 
     filename = os.path.join("..", "models", "effectiveness_log.json")
     data = []
@@ -65,7 +68,7 @@ def save_training_stats(report, model_name="bst_diabetes_classifier"):
 
     # Prepare stats
     stats = {
-        "model_name": model_name,
+        "model": file_name,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "accuracy": float(f"{report['accuracy']:.4f}"),
         "metrics": {
@@ -99,9 +102,7 @@ def save_training_stats(report, model_name="bst_diabetes_classifier"):
     # Zapisz
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-
-    print(f"Statystyki zapisane dla modelu: {model_name}")
-    return stats
+    print(f"Statystyki dla {file_name} zapisano w pliku {filename}:")
 
 
 # Wczytanie danych z pliku CSV
@@ -155,8 +156,9 @@ print(report_string)
 
 
 # saving model and stats from report
-save_model_unique(bst)
-save_training_stats(report_dict)
+model_file = save_model_unique(bst)
+save_training_stats(report_dict, model_file)
+#save_training_stats(report_dict, save_model_unique(bst))
 
 
 
