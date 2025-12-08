@@ -8,7 +8,8 @@ import json
 from datetime import datetime
 
 
-
+# HELPER FUNCTIONS
+# ---
 def save_model_unique(model, model_name="bst_diabetes_classifier"):
     """
     Saves model with unique name.
@@ -105,61 +106,71 @@ def save_training_stats(report, file_name):
     print(f"Statystyki dla {file_name} zapisano w pliku {filename}:")
 
 
-# Wczytanie danych z pliku CSV
-file_path = "../data/Diabetes_Classification.csv"   # Data file path
-df = pd.read_csv(file_path)                         # Dataframe created and asigned
-df_first_6 = df.head(6)
-#print(df_first_6)
-#print(df.describe())
+# Pipeline class
+# ---
+class ModelTrainer():
+    def __init__(self, data_path, seed=42):
+        self.data_path = data_path
+        self.seed = seed
+        self.model = None
+        self.X_train = None
+        self.X_test = None
+        self.y_train = None
+        self.y_test = None
+        self.report_dict = None
 
-# Columns verification
-required_columns = {'Id', 'Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN', 'Diagnosis'}
-if not required_columns.issubset(df.columns):
-    raise ValueError(f"Plik CSV musi zawierać kolumny: {required_columns}")
+    def load_data(self):
+        df = pd.read_csv(self.data_path)
 
-# Set 'Gender' column as categorical
-df['Gender'] = df['Gender'].astype('category')
-# Input (X)
-X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN']]
+        # Columns verification
+        required_columns = {'Id', 'Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN', 'Diagnosis'}
+        if not required_columns.issubset(df.columns):
+            raise ValueError(f"Plik CSV musi zawierać kolumny: {required_columns}")
 
-# Prediction target (y)
-y_class = df['Diagnosis']
+        # Set 'Gender' column as categorical
+        df['Gender'] = df['Gender'].astype("category")
 
-SEED = 42
-# Dataset split -> test/train
-X_train, X_test,y_train, y_test = train_test_split(
-    X, y_class, test_size=0.2, random_state=SEED
-)
+        # Input (X)
+        X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN']]
+        y = df['Diagnosis']
 
-# print(X_test)
-# print(X_train)
-# print(y_test)
-# print(y_train)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X, y, test_size=0.2, random_state=self.seed
+        )
 
-# create model instance
-bst = XGBClassifier(n_estimators=2, max_depth=2, enable_categorical=True, learning_rate=1, objective='binary:logistic', eval_metric='auc')
-# fit model
-bst.fit(X_train, y_train)
-# make predictions
-preds = bst.predict(X_test)
-print(preds)
+    def train(self, **model_params):
+        default_params = dict(
+            n_estimators=200,
+            max_depth=4,
+            learning_rate=0.1,
+            enable_categorical=True,
+            objective='binary:logistic',
+            eval_metric='auc'
+        )
+        default_params.update(model_params)
 
-# # Ocena modelu
-print("Macierz konfuzji:")
-confusion_matrix = confusion_matrix(y_test, preds)
-print(confusion_matrix)
+        self.model = XGBClassifier(**default_params)
+        self.model.fit(self.X_train, self.y_train)
 
-print("\nRaport klasyfikacji:")
-report_string = classification_report(y_test, preds)
-report_dict = classification_report(y_test, preds, output_dict=True)
-print(report_string)
+    def evaluate(self):
+        preds = self.model.predict(self.X_test)
+        self.report_dict = classification_report(self.y_test, preds, output_dict=True)
+        report_string = classification_report(self.y_test, preds)
+        return report_string
 
-
-# saving model and stats from report
-model_file = save_model_unique(bst)
-save_training_stats(report_dict, model_file)
-#save_training_stats(report_dict, save_model_unique(bst))
+    def save(self, model_name="bst_diabetes_classifier"):
+        file_name = save_model_unique(self.model, model_name)
+        save_training_stats(self.report_dict, file_name)
+        return file_name
 
 
+# Tests
+# ---
+trainer = ModelTrainer("../data/Diabetes_Classification.csv")
+trainer.load_data()
+trainer.train()
+report = trainer.evaluate()
+print(report)
+trainer.save()
 
 
