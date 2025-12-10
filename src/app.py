@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report, confusion_matrix
 from xgboost import XGBClassifier
 import os
@@ -83,12 +83,24 @@ def save_training_stats(report, file_name):
                 "recall": float(f"{report['macro avg']['recall']:.4f}"),
                 "f1_score": float(f"{report['macro avg']['f1-score']:.4f}")
             }
-        }
+        },
+        "classes": {
+        },
+        "training_params": {
+            "objective": report['params']['objective'],
+            "eval_metric": report['params']['eval_metric'],
+            "learning_rate": report['params']['learning_rate'],
+            "max_depth": report['params']['max_depth'],
+            "min_child_weight": report['params']['min_child_weight'],
+            "subsample": report['params']['subsample'],
+            "colsample_bytree": report['params']['colsample_bytree'],
+            "scale_pos_weight": report['params']['scale_pos_weight']
+        },
     }
 
     class_metrics = {}
     for key in report:
-        if key not in ['accuracy', 'macro avg', 'weighted avg'] and isinstance(report[key], dict):
+        if key not in ['accuracy', 'macro avg', 'weighted avg', 'params'] and isinstance(report[key], dict):
             class_metrics[key] = {
                 "precision": float(f"{report[key].get('precision', 0):.4f}"),
                 "recall": float(f"{report[key].get('recall', 0):.4f}"),
@@ -152,11 +164,51 @@ class ModelTrainer():
         self.model = XGBClassifier(**default_params)
         self.model.fit(self.X_train, self.y_train)
 
+    def grid_search(self):
+        """Hyperparameter tuning using GridSearchCV for XGBoost."""
+
+        param_grid = {
+            "n_estimators": [100, 200, 400, 600, 800],
+            "max_depth": [3, 4, 6],
+            "learning_rate": [0.01, 0.1, 0.2],
+            "subsample": [0.7, 1.0],
+            "colsample_bytree": [0.7, 1.0],
+            "min_child_weight": [1, 3, 5]
+        }
+
+        base_params = dict(
+            objective="binary:logistic",
+            eval_metric="auc",
+            enable_categorical=True,
+        )
+
+        model = XGBClassifier(**base_params)
+
+        grid = GridSearchCV(
+            estimator=model,
+            param_grid=param_grid,
+            scoring="accuracy",  # możesz zmienić na accuracy/f1_macro/roc_auc
+            cv=3,
+            n_jobs=-1,
+            verbose=2
+        )
+
+        grid.fit(self.X_train, self.y_train)
+        self.model = grid.best_estimator_
+
+        print("===== BEST PARAMS =====")
+        print(grid.best_params_)
+
+        return grid.best_params_
+
     def evaluate(self):
         preds = self.model.predict(self.X_test)
         self.report_dict = classification_report(self.y_test, preds, output_dict=True)
+        self.report_dict["params"] = self.model.get_xgb_params()
         report_string = classification_report(self.y_test, preds)
-        return report_string
+        matrix = confusion_matrix(self.y_test, preds)
+        print(matrix)
+        print(report_string)
 
     def save(self, model_name="bst_diabetes_classifier"):
         file_name = save_model_unique(self.model, model_name)
@@ -168,9 +220,17 @@ class ModelTrainer():
 # ---
 trainer = ModelTrainer("../data/Diabetes_Classification.csv")
 trainer.load_data()
-trainer.train()
-report = trainer.evaluate()
-print(report)
+# best_params = trainer.grid_search()
+# print(best_params)
+trainer.train(n_estimators=400,
+            max_depth=4,
+            learning_rate=0.01,
+            colsample_bytree=1.0,
+            subsample=1.0,
+            min_child_weight=3,
+            scale_pos_weight = 1.4
+            )
+trainer.evaluate()
 trainer.save()
 
 
