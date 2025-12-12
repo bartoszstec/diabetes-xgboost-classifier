@@ -152,12 +152,9 @@ class ModelTrainer():
 
     def train(self, **model_params):
         default_params = dict(
-            n_estimators=200,
-            max_depth=4,
-            learning_rate=0.1,
-            enable_categorical=True,
             objective='binary:logistic',
-            eval_metric='auc'
+            eval_metric='auc',
+            enable_categorical=True
         )
         default_params.update(model_params)
 
@@ -187,7 +184,7 @@ class ModelTrainer():
         grid = GridSearchCV(
             estimator=model,
             param_grid=param_grid,
-            scoring="accuracy",  # możesz zmienić na accuracy/f1_macro/roc_auc
+            scoring="f1_macro",  # możesz zmienić na accuracy/f1_macro/roc_auc
             cv=3,
             n_jobs=-1,
             verbose=2
@@ -203,6 +200,8 @@ class ModelTrainer():
 
     def evaluate(self):
         preds = self.model.predict(self.X_test)
+        # proba = self.model.predict_proba(self.X_test)[:, 1]
+        # preds = (proba >= 0.35).astype(int)  # threshold
         self.report_dict = classification_report(self.y_test, preds, output_dict=True)
         self.report_dict["params"] = self.model.get_xgb_params()
         report_string = classification_report(self.y_test, preds)
@@ -214,6 +213,9 @@ class ModelTrainer():
         file_name = save_model_unique(self.model, model_name)
         save_training_stats(self.report_dict, file_name)
         return file_name
+
+    def get_model(self):
+        return self.model
 
 
 # Tests
@@ -227,8 +229,8 @@ trainer.train(n_estimators=400,
             learning_rate=0.01,
             colsample_bytree=1.0,
             subsample=1.0,
-            min_child_weight=3,
-            scale_pos_weight = 1.4
+            min_child_weight=3,         # Minimum sum of instance weight (hessian) needed in a child
+            scale_pos_weight = 1.6      # Control the balance of positive and negative weights, typical value to consider: sum(negative instances) / sum(positive instances)
             )
 trainer.evaluate()
 trainer.save()
