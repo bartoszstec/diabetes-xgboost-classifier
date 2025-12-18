@@ -1,7 +1,8 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report, confusion_matrix
-from xgboost import XGBClassifier
+from xgboost import XGBClassifier, plot_importance
+import matplotlib.pyplot as plt
 import os
 import joblib
 import json
@@ -89,11 +90,12 @@ def save_training_stats(report, file_name):
         "training_params": {
             "objective": report['params']['objective'],
             "eval_metric": report['params']['eval_metric'],
-            "learning_rate": report['params']['learning_rate'],
+            "n_estimators": report['params']['n_estimators'],
             "max_depth": report['params']['max_depth'],
             "min_child_weight": report['params']['min_child_weight'],
-            "subsample": report['params']['subsample'],
+            "learning_rate": report['params']['learning_rate'],
             "colsample_bytree": report['params']['colsample_bytree'],
+            "subsample": report['params']['subsample'],
             "scale_pos_weight": report['params']['scale_pos_weight']
         },
     }
@@ -184,7 +186,7 @@ class ModelTrainer():
         grid = GridSearchCV(
             estimator=model,
             param_grid=param_grid,
-            scoring="f1_macro",  # możesz zmienić na accuracy/f1_macro/roc_auc
+            scoring="f1_macro",  # options: accuracy/f1_macro/roc_auc
             cv=3,
             n_jobs=-1,
             verbose=2
@@ -200,10 +202,9 @@ class ModelTrainer():
 
     def evaluate(self):
         preds = self.model.predict(self.X_test)
-        # proba = self.model.predict_proba(self.X_test)[:, 1]
-        # preds = (proba >= 0.35).astype(int)  # threshold
         self.report_dict = classification_report(self.y_test, preds, output_dict=True)
-        self.report_dict["params"] = self.model.get_xgb_params()
+        #self.report_dict["params"] = self.model.get_xgb_params()   #xgb
+        self.report_dict["params"] = self.model.get_params()        #scikit-learn
         report_string = classification_report(self.y_test, preds)
         matrix = confusion_matrix(self.y_test, preds)
         print(matrix)
@@ -224,15 +225,23 @@ trainer = ModelTrainer("../data/Diabetes_Classification.csv")
 trainer.load_data()
 # best_params = trainer.grid_search()
 # print(best_params)
-trainer.train(n_estimators=400,
-            max_depth=4,
-            learning_rate=0.01,
-            colsample_bytree=1.0,
-            subsample=1.0,
+trainer.train(n_estimators=400,         # number of trees
+            max_depth=4,                # max depth of trees
+            learning_rate=0.01,         # learning rate aka eta
+            colsample_bytree=1.0,       # is the subsample ratio of columns when constructing each tree. Subsampling occurs once for every tree constructed.
+            subsample=1.0,              # Subsample ratio of the training instances. Setting it to 0.5 means that XGBoost would randomly sample half of the
+                                        # training data prior to growing trees. and this will prevent overfitting.
+                                        # Subsampling will occur once in every boosting iteration. range: (0,1]
+
             min_child_weight=3,         # Minimum sum of instance weight (hessian) needed in a child
             scale_pos_weight = 1.6      # Control the balance of positive and negative weights, typical value to consider: sum(negative instances) / sum(positive instances)
             )
 trainer.evaluate()
 trainer.save()
+
+# Checking importance of columns
+model = trainer.get_model()
+plot_importance(model, importance_type="gain")
+plt.show()
 
 
