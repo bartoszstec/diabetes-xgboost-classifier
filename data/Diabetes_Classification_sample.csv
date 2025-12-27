@@ -1,4 +1,4 @@
-Unnamed: 0,Age,Gender,BMI,Chol,TG,HDL,LDL,Cr,BUN,Diagnosis
+Id,Age,Gender,BMI,Chol,TG,HDL,LDL,Cr,BUN,Diagnosis
 0,50,F,24,4.2,0.9,2.4,1.4,46.0,4.7,0
 1,26,M,23,3.7,1.4,1.1,2.1,62.0,4.5,0
 2,33,M,21,4.9,1.0,0.8,2.0,46.0,7.1,0

@@ -7,6 +7,7 @@ import os
 import joblib
 import json
 from datetime import datetime
+import preprocessing
 
 
 # HELPER FUNCTIONS
@@ -136,14 +137,6 @@ class ModelTrainer():
     def load_data(self):
         df = pd.read_csv(self.data_path)
 
-        # Columns verification
-        required_columns = {'Id', 'Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN', 'Diagnosis'}
-        if not required_columns.issubset(df.columns):
-            raise ValueError(f"Plik CSV musi zawierać kolumny: {required_columns}")
-
-        # Set 'Gender' column as categorical
-        df['Gender'] = df['Gender'].astype("category")
-
         # Input (X)
         X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN']]
         y = df['Diagnosis']
@@ -221,7 +214,7 @@ class ModelTrainer():
 
 # Tests
 # ---
-trainer = ModelTrainer("../data/Diabetes_Classification.csv")
+trainer = ModelTrainer("../data/Diabetes_Classification_label_encoding.csv")
 trainer.load_data()
 # best_params = trainer.grid_search()
 # print(best_params)
@@ -237,11 +230,11 @@ trainer.train(n_estimators=400,         # number of trees
             scale_pos_weight = 1.6      # Control the balance of positive and negative weights, typical value to consider: sum(negative instances) / sum(positive instances)
             )
 trainer.evaluate()
-trainer.save()
+# trainer.save()
 
 # Checking importance of columns
 model = trainer.get_model()
-plot_importance(model, importance_type="gain")
+plot_importance(model, importance_type="weight") # importance type gain/weight/cover
 plt.show()
 
 

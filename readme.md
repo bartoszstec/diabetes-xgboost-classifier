@@ -16,3 +16,8 @@ A machine learning model for predicting diabetes based on biometric blood-test d
 - Evaluate baseline and optimized XGBoost model
 - Analyze which biometric factors contribute most to prediction
 - REALLY NOT IMPLEMENTING WEB INTERFACE (optional)
+
+## Conclusions from the project:
+- In medical classification tasks such as diabetes prediction, overall accuracy is not the most important evaluation metric. A balanced trade-off between precision and recall for each class is crucial, with particular emphasis on recall for the positive class (ill patients). Misclassifying an ill patient as healthy (false negative) is the most critical error, therefore the model should prioritize achieving a high recall for the positive class.
+- The use of Label Encoding and One-Hot Encoding for the binary Gender feature did not affect the model’s performance. This behavior is consistent with the properties of tree-based algorithms such as XGBoost, which are insensitive to monotonic transformations of categorical variables. Feature importance analysis further confirmed that gender has only a marginal predictive contribution compared to clinical and biometric features.
+
