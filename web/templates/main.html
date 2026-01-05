@@ -1,0 +1,78 @@
+<!Doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Diabetes Risk Assessment Tool</h2>
+
+        <p class="description">
+            This tool provides an initial risk assessment for diabetes based on selected
+            demographic information and blood test results. All input fields are required
+            to ensure accurate evaluation.
+            <br><br>
+            Please note that this assessment is intended for screening purposes only and
+            does not constitute a medical diagnosis. If the result indicates an increased
+            risk of diabetes, you are strongly advised to consult a qualified healthcare
+            professional and undergo appropriate medical testing.
+        </p>
+
+            <form action="/predict" method="POST">
+                <label for="age">Age:</label><br>
+                <input type="number" id="age" name="age"  step="1" min="18" max="99" required ><br>
+
+                <div class="radio-group">
+                    <p>Gender:</p>
+                    <label>
+                        <input type="radio" name="gender" value="F" required>
+                        Female
+                    </label>
+                    <label>
+                        <input type="radio" name="gender" value="M">
+                        Male
+                    </label>
+                </div><br>
+
+
+                <label for="bmi">BMI:</label><br>
+                <input type="number" id="bmi" name="bmi" step="1" min="15" max="47" required>
+                <p>a measure that uses a person's height and weight to determine whether they are normal weight, overweight, or obese.</p><br><br>
+
+                <label for="chol">Chol:</label><br>
+                <input type="number" id="chol" name="chol" step="0.1" min="0" max="12" required>
+                <p>total cholesterol level in the blood (mg/dL)</p><br><br>
+
+                <label for="tg">TG:</label><br>
+                <input type="number" id="tg" name="tg" step="0.1" min="0" max="33" required>
+                <p>types of fat found in the blood (mg/dL)</p><br><br>
+
+                <label for="hdl">HDL:</label><br>
+                <input type="number" id="hdl" name="hdl" step="0.1" min="0" max="10" required>
+                <p>"good" cholesterol that helps transport excess cholesterol from the body's tissues back to the liver for further processing or excretion (mg/dL)</p><br><br>
+
+                <label for="ldl">LDL:</label><br>
+                <input type="number" id="ldl" name="ldl" step="0.1" min="0.3" max="10" required>
+                <p>"bad" cholesterol that can cause plaque buildup in the arteries, increasing the risk of heart disease and stroke (mg/dL)</p><br><br>
+
+                <label for="cr">Cr:</label><br>
+                <input type="number" id="cr" name="cr" step="0.01" min="4.5" max="800" required>
+                <p>waste products of muscle metabolism that are excreted from the body through the kidneys (mg/dL)</p><br><br>
+
+                <label for="bun">BUN:</label><br>
+                <input type="number" id="bun" name="bun" step="0.1" min="0.5" max="40" required>
+                <p>blood test to measure the amount of urea nitrogen in the blood (mg/dL)</p><br><br>
+
+                <input type="submit" value="Submit">
+            </form>
+    </div>
+</body>
+
+<footer>
+</footer>
+
+</html>

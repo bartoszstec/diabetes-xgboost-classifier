@@ -1,0 +1,140 @@
+/* ====== RESET & BASE ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #eaf4ff, #f7fbff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #1f2d3d;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #000000;
+}
+
+.description {
+    font-size: 0.9rem;
+    color: #375a7f;
+    background: #f2f8ff;
+    border-left: 4px solid #4da3ff;
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    margin-bottom: 1.8rem;
+    line-height: 1.5;
+}
+
+/* ====== FORM CONTAINER ====== */
+form {
+    background: #ffffff;
+    padding: 2.5rem 3rem;
+    width: 700px;
+    border-radius: 18px;
+    justify-content: center;
+    box-shadow:
+        0 10px 30px rgba(0, 88, 160, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/*input[type="number"] {
+    appearance: textfield;
+}*/
+
+/* ====== HEADINGS ====== */
+h2 {
+    display:flex;
+    align-items: center;
+    margin-bottom: 1.8rem;
+    color: #000000;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ====== LABELS ====== */
+label, p {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #375a7f;
+    margin-bottom: 0.35rem;
+    display: block;
+}
+
+/* ====== INPUTS ====== */
+input[type="number"] {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 1.2rem;
+    border-radius: 10px;
+    border: 1px solid #cfe3f5;
+    background-color: #f9fcff;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+input[type="number"]:focus {
+    outline: none;
+    border-color: #4da3ff;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.2);
+}
+
+/* ====== RADIO BUTTONS ====== */
+input[type="radio"] {
+    margin-right: 6px;
+    accent-color: #4da3ff;
+}
+
+.radio-group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.4rem;
+}
+
+.radio-group p {
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+/* ====== SUBMIT BUTTON ====== */
+input[type="submit"] {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.8rem;
+    background: linear-gradient(135deg, #4da3ff, #1c7ed6);
+    border: none;
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+input[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(28, 126, 214, 0.35);
+}
+
+input[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(28, 126, 214, 0.25);
+}
+

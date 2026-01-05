@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assessment Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Diabetes Risk Assessment Result</h2>
+
+    <div class="result-card">
+
+        {% if prediction == 1 %}
+            <p class="result high">
+                Increased risk of diabetes detected
+            </p>
+        {% else %}
+            <p class="result low">
+                Low risk of diabetes detected
+            </p>
+        {% endif %}
+
+        <p class="probability">
+            Estimated probability: <strong>{{ probability }}%</strong>
+        </p>
+
+        <p class="disclaimer">
+            This result is based on an automated risk assessment model and is
+            intended for screening purposes only. It does not represent a
+            medical diagnosis. If you have concerns or received an elevated
+            risk result, please consult a qualified healthcare professional.
+        </p>
+
+        <a href="/" class="back-btn">Back to assessment</a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

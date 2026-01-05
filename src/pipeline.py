@@ -230,7 +230,7 @@ trainer.train(n_estimators=400,         # number of trees
             scale_pos_weight = 1.6      # Control the balance of positive and negative weights, typical value to consider: sum(negative instances) / sum(positive instances)
             )
 trainer.evaluate()
-# trainer.save()
+trainer.save()
 
 # Checking importance of columns
 model = trainer.get_model()
