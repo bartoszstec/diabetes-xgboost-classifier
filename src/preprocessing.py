@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 
+# data paths
 source_path = "../data/Diabetes_Classification.csv"
 normalized_path = "../data/Diabetes_Classification_normalized.csv"
 sample_path = "../data/Diabetes_Classification_sample.csv"

@@ -17,6 +17,7 @@ def hello_world():
 @app.route("/predict", methods=["POST"])
 def predict():
 
+    # get data from form
     age = int(request.form["age"])
     gender = request.form["gender"]
     bmi = float(request.form["bmi"])
@@ -29,6 +30,7 @@ def predict():
 
     gender_encoded = 1 if gender == "M" else 0 # Male is encoded as 1 and Female as 0
 
+    # store data as numpy array
     X = np.array([[
         age,
         gender_encoded,
@@ -41,10 +43,7 @@ def predict():
         bun
     ]])
 
-    print(X)
-    print(type(model))
-
-    # 🔹 predykcja
+    # 🔹 prediction
     prediction = model.predict(X)[0]
     probability = model.predict_proba(X)[0][1]
 
