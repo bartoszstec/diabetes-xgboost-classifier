@@ -6,12 +6,13 @@ from sklearn.preprocessing import OneHotEncoder
 source_path = "../data/Diabetes_Classification.csv"
 normalized_path = "../data/Diabetes_Classification_normalized.csv"
 sample_path = "../data/Diabetes_Classification_sample.csv"
-le_path = "../data/Diabetes_Classification_label_encoding.csv"
-ohe_path = "../data/Diabetes_Classification_one_hot_encoding.csv"
+le_path = "../data/Diabetes_Classification_le.csv"
+ohe_path = "../data/Diabetes_Classification_ohe.csv"
 
 # Read main data -> normalize and save it
 df = pd.read_csv(source_path)
 df["Gender"] = df["Gender"].str.upper().str.strip()
+df = df.drop(df[(df[["Chol","TG","HDL","LDL","Cr","BUN"]] == 4.860753).any(axis=1)].index) # deleting rows with magic value 4.860753 to prevent data leakage
 df.to_csv(normalized_path, index=False)
 
 # Save sample data

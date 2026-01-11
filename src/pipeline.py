@@ -7,7 +7,9 @@ import os
 import joblib
 import json
 from datetime import datetime
-import preprocessing
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
 
 # HELPER FUNCTIONS
@@ -138,12 +140,70 @@ class ModelTrainer():
         df = pd.read_csv(self.data_path)
 
         # Input (X)
-        X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN']]
+        X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN', 'cluster']]
         y = df['Diagnosis']
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             X, y, test_size=0.2, random_state=self.seed
         )
+
+    def clustering(self):
+        df = pd.read_csv(self.data_path)
+
+        X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN']]
+
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        kmeans = KMeans(n_clusters=3, random_state=42)
+        clusters = kmeans.fit_predict(X_scaled)
+
+        pca = PCA(n_components=2)
+        X_pca = pca.fit_transform(X_scaled)
+
+        # save scaler and cluster
+        joblib.dump(scaler, "../models/scaler.pkl")
+        joblib.dump(kmeans, "../models/kmeans.pkl")
+
+        # add 'cluster' column before 'diagnosis' and save it in database
+        df["cluster"] = clusters
+        cols = df.columns.tolist()
+        cols.insert(cols.index("Diagnosis"), cols.pop(cols.index("cluster")))
+        df = df[cols]
+
+        # split path name and proper save
+        base, ext = os.path.splitext(self.data_path)
+        df.to_csv(f"{base}_clusters{ext}", index=False)
+        print(df.groupby("cluster").mean())
+
+        # show clusters visualization
+        plt.figure(figsize=(6, 4))
+        plt.scatter(X_pca[:, 0], X_pca[:, 1], c=clusters, cmap='viridis')
+        plt.title("title")
+        plt.show()
+
+        # Testing proper value for k in clustering by elbow plot
+        # ---
+        # inertias = []
+        # K_range = range(1, 11)
+        #
+        # for k in K_range:
+        #     kmeans = KMeans(n_clusters=k, random_state=42, n_init="auto")
+        #     kmeans.fit(X_scaled)
+        #     inertias.append(kmeans.inertia_)
+        #
+        # # inertia dla K=1 (total variance)
+        # inertia_1 = inertias[0]
+        #
+        # explained_variance = [
+        #     1 - (i / inertia_1) for i in inertias
+        # ]
+        #
+        # plt.plot(K_range, explained_variance, marker="o")
+        # plt.xlabel("Number of clusters (K)")
+        # plt.ylabel("Explained variance (R²)")
+        # plt.title("Elbow method – variance explained")
+        # plt.show()
 
     def train(self, **model_params):
         default_params = dict(
@@ -214,26 +274,28 @@ class ModelTrainer():
 
 # Tests
 # ---
-trainer = ModelTrainer("../data/Diabetes_Classification_label_encoding.csv")
-trainer.load_data()
-# best_params = trainer.grid_search()
+clustering_trainer = ModelTrainer("../data/Diabetes_Classification_le.csv")
+clustering_trainer.clustering()
+xgb_trainer = ModelTrainer("../data/Diabetes_Classification_le_clusters.csv")
+xgb_trainer.load_data()
+# best_params = xgb_trainer.grid_search()
 # print(best_params)
-trainer.train(n_estimators=400,         # number of trees
+xgb_trainer.train(n_estimators=600,         # number of trees
             max_depth=4,                # max depth of trees
             learning_rate=0.01,         # learning rate aka eta
-            colsample_bytree=1.0,       # is the subsample ratio of columns when constructing each tree. Subsampling occurs once for every tree constructed.
-            subsample=1.0,              # Subsample ratio of the training instances. Setting it to 0.5 means that XGBoost would randomly sample half of the
+            colsample_bytree=0.7,       # is the subsample ratio of columns when constructing each tree. Subsampling occurs once for every tree constructed.
+            subsample=0.7,              # Subsample ratio of the training instances. Setting it to 0.5 means that XGBoost would randomly sample half of the
                                         # training data prior to growing trees. and this will prevent overfitting.
                                         # Subsampling will occur once in every boosting iteration. range: (0,1]
 
             min_child_weight=3,         # Minimum sum of instance weight (hessian) needed in a child
-            scale_pos_weight = 1.6      # Control the balance of positive and negative weights, typical value to consider: sum(negative instances) / sum(positive instances)
+            scale_pos_weight = 2      # Control the balance of positive and negative weights, typical value to consider: sum(negative instances) / sum(positive instances)
             )
-trainer.evaluate()
-trainer.save()
+xgb_trainer.evaluate()
+xgb_trainer.save()
 
 # Checking importance of columns
-model = trainer.get_model()
+model = xgb_trainer.get_model()
 plot_importance(model, importance_type="weight") # importance type gain/weight/cover
 plt.show()
 

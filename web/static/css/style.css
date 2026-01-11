@@ -6,12 +6,7 @@
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
     background: linear-gradient(135deg, #eaf4ff, #f7fbff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     color: #1f2d3d;
 }
 
@@ -136,5 +131,27 @@ input[type="submit"]:hover {
 input[type="submit"]:active {
     transform: translateY(0);
     box-shadow: 0 4px 12px rgba(28, 126, 214, 0.25);
+}
+
+/* ====== Error page styles ====== */
+.error-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #e74c3c;
+    border-radius: 5px;
+    background-color: #fadbd8;
+}
+
+.error-title {
+    color: #c0392b;
+    margin-bottom: 20px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #2980b9;
+    text-decoration: none;
 }
 

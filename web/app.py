@@ -2,7 +2,9 @@ from flask import Flask, render_template, request
 import joblib
 import numpy as np
 
-model = joblib.load("../models/bst_diabetes_classifier.pkl")
+model = joblib.load("../models/bst_diabetes_classifier_clusters.pkl")
+scaler = joblib.load("../models/scaler.pkl")
+kmeans = joblib.load("../models/kmeans.pkl")
 
 app = Flask(__name__)
 
@@ -30,7 +32,7 @@ def predict():
 
     gender_encoded = 1 if gender == "M" else 0 # Male is encoded as 1 and Female as 0
 
-    # store data as numpy array
+    # store data as numpy array (basic features)
     X = np.array([[
         age,
         gender_encoded,
@@ -43,12 +45,28 @@ def predict():
         bun
     ]])
 
+    # scaling
+    x_scaled = scaler.transform(X)
+
+    # defining a cluster for a patient
+    cluster = kmeans.predict(x_scaled)[0]
+
+    # adding cluster to array
+    X_with_cluster = np.append(X, cluster.reshape(-1, 1), axis=1)
+
     # 🔹 prediction
-    prediction = model.predict(X)[0]
-    probability = model.predict_proba(X)[0][1]
+    prediction = model.predict(X_with_cluster)[0]
+    probability = model.predict_proba(X_with_cluster)[0][1]
 
     return render_template(
         "results.html",
         prediction=int(prediction),
         probability=round(probability * 100, 2)
+    )
+
+@app.route("/error")
+def error():
+    return render_template(
+        "error.html",
+        error_message=""
     )
