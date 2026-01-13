@@ -179,7 +179,9 @@ class ModelTrainer():
         # show clusters visualization
         plt.figure(figsize=(6, 4))
         plt.scatter(X_pca[:, 0], X_pca[:, 1], c=clusters, cmap='viridis')
-        plt.title("title")
+        plt.title("PCA Visualization of Patient Clusters")
+        plt.xlabel("First Principal Component")
+        plt.ylabel("Second Principal Component")
         plt.show()
 
         # Testing proper value for k in clustering by elbow plot
@@ -296,7 +298,7 @@ xgb_trainer.save()
 
 # Checking importance of columns
 model = xgb_trainer.get_model()
-plot_importance(model, importance_type="weight") # importance type gain/weight/cover
+plot_importance(model, importance_type="gain") # importance type gain/weight/cover
 plt.show()
 
 
