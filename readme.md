@@ -99,11 +99,6 @@ Last step: Access the application at: http://localhost:5000
 - Loss Function: Binary Cross-Entropy
 - Hyperparameter Tuning: Grid Search
 
-## Key Innovations
-- Phenotype Clustering: K-means clustering of patient profiles to capture disease subtypes
-- Leakage Handling: Identification and removal of samples with data leakage
-- Clinical Prioritization: Optimization for high recall in positive class
-
 ## Preprocessing Pipeline
 - Data normalization
 - Handling of data leakage cases
