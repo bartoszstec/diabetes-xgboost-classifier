@@ -15,6 +15,11 @@ df["Gender"] = df["Gender"].str.upper().str.strip()
 df = df.drop(df[(df[["Chol","TG","HDL","LDL","Cr","BUN"]] == 4.860753).any(axis=1)].index) # deleting rows with magic value 4.860753 to prevent data leakage
 df.to_csv(normalized_path, index=False)
 
+# Print basic stats for all columns
+print("--- Basic stats (mean, min, max) ---")
+stats = df.describe().loc[['mean', 'min', 'max']]
+print(stats)
+
 # Save sample data
 df_first_100 = df.head(101)
 df_first_100.to_csv(sample_path, index=False)

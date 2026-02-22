@@ -10,6 +10,9 @@
 <div class="container">
     <h2>Diabetes Risk Assessment Result</h2>
     <div class="result-card">
+        <div class="risk-meter-container">
+            <div id="risk-bar" class="risk-bar"></div>
+        </div>
 
         {% if prediction == 1 %}
             <p class="result high">
@@ -39,3 +42,25 @@
 
 </body>
 </html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Pobieramy wartość prawdopodobieństwa przekazaną z Flaska
+        const prob = parseFloat("{{ probability }}");
+        const bar = document.getElementById('risk-bar');
+
+        // Ustawiamy szerokość (z opóźnieniem dla efektu animacji)
+        setTimeout(() => {
+            bar.style.width = prob + "%";
+        }, 100);
+
+        // Logika kolorów
+        if (prob < 33) {
+            bar.style.backgroundColor = "#4CAF50"; // Zielony - niski
+        } else if (prob < 66) {
+            bar.style.backgroundColor = "#FFC107"; // Żółty - średni
+        } else {
+            bar.style.backgroundColor = "#F44336"; // Czerwony - wysoki
+        }
+    });
+</script>
