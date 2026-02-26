@@ -1,6 +1,9 @@
 # 📋 Project Overview
 A machine learning model for predicting diabetes based on biometric blood-test data, implementing a complete ML workflow from data preprocessing to model deployment.
 
+## Short demonstration video of classification model feature
+[![Watch the video](github_assets/diabetes_predictor_yt_thumbnail.png)](https://youtu.be/0HRh3Uo4MiY)
+
 # 🎯 Project Goals
 - Build a clean, reproducible ML pipeline for diabetes prediction
 - Evaluate baseline and optimized XGBoost models
@@ -127,7 +130,7 @@ This section shows the relative importance of each input feature in the trained 
 
 Gain measures how much each feature contributes to improving the model’s predictions when it is used in a split inside the model.
 
-![Feature importance](Feature_importance_gain.png)
+![Feature importance](github_assets/Feature_importance_gain.png)
 
 Higher values mean that the feature provides more predictive power to the model.
 
@@ -137,7 +140,7 @@ This plot shows a 2-dimensional visualization of patient clusters created using 
 The model first groups patients based on similarity of their medical profiles (unsupervised clustering).
 PCA then compresses the high-dimensional data into two dimensions so it can be visualized.
 
-![PCA](PCA.png)
+![PCA](github_assets/PCA.png)
 
 Each point represents one patient:
 - Points close together → patients with similar medical profiles
