@@ -3,6 +3,8 @@ import joblib
 import numpy as np
 import logging
 from typing import Dict, Any
+from src.advisor import MedicalAdvisor
+import markdown
 
 # Logger configuration
 logging.basicConfig(level=logging.INFO)
@@ -17,6 +19,11 @@ MODEL_PATHS = {
 
 # models cache (Singleton simple pattern)
 _models_cache = {}
+
+# Singleton baza wektorowa
+advisor = MedicalAdvisor(
+    db_path="data/vector_db",
+    docs_path="data/knowledge_base")
 
 def load_models():
     """Loading ML models with cache."""
@@ -131,11 +138,21 @@ def predict():
         # Prediction
         result = predictor.predict(patient_data)
 
+        # Advisor (RAG)
+        advise = advisor.get_interpretation(
+            probability=result['probability'],
+            user_data=patient_data
+        )
+
+        # Zamień Markdown na HTML
+        advise_html = markdown.markdown(advise)
+
         # Results
         return render_template(
             "results.html",
             prediction=result['prediction'],
-            probability=round(result['probability'] * 100, 2)
+            probability=round(result['probability'] * 100, 2),
+            advise=advise_html
         )
 
     except ValueError as e:

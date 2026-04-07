@@ -14,19 +14,29 @@
             <div id="risk-bar" class="risk-bar"></div>
         </div>
 
-        {% if prediction == 1 %}
-            <p class="result high">
-                Increased risk of diabetes detected
-            </p>
-        {% else %}
+        {% if probability <= 33 %}
             <p class="result low">
                 Low risk of diabetes detected
             </p>
+        {% elif probability <= 66 %}
+            <p class="result moderate">
+                Moderate risk of diabetes
+            </p>
+        {% else %}
+            <p class="result high">
+                Increased risk of diabetes detected
+            </p>
+
         {% endif %}
 
         <p class="probability">
             Estimated probability: <strong>{{ probability }}%</strong>
         </p>
+
+        <div class="medical-advice">
+        <h2>Interpretacja medyczna (AI):</h2>
+        <p style="white-space: pre-wrap;">{{ advise | safe }}</p>
+        </div>
 
         <p class="disclaimer">
             This result is based on an automated risk assessment model and is

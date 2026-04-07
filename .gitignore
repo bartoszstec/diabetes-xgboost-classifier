@@ -1,7 +1,8 @@
 venv/
 __pycache__/
 .idea/
-data/*.csv
+data/*
 !data/Diabetes_Classification_sample.csv
 *.json
 *.pkl
+.env
