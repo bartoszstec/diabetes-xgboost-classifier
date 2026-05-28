@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 # constant values
 MODEL_PATHS = {
-    'classifier': 'models/bst_diabetes_classifier_clusters.pkl',
+    'classifier': 'models/bst_diabetes_classifier_deployed.pkl',
     'scaler': 'models/scaler.pkl',
     'kmeans': 'models/kmeans.pkl'
 }

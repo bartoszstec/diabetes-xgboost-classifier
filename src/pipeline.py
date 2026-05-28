@@ -140,7 +140,7 @@ class ModelTrainer():
         df = pd.read_csv(self.data_path)
 
         # Input (X)
-        X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN', 'cluster']]
+        X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN']]
         y = df['Diagnosis']
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
@@ -148,37 +148,29 @@ class ModelTrainer():
         )
 
     def clustering(self):
-        df = pd.read_csv(self.data_path)
-
-        X = df[['Age', 'Gender', 'BMI', 'Chol', 'TG', 'HDL', 'LDL', 'Cr', 'BUN']]
 
         scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
+        # X_scaled = scaler.fit_transform(X)
+        X_train_scaled = scaler.fit_transform(self.X_train)
+        X_test_scaled = scaler.transform(self.X_test)
 
         kmeans = KMeans(n_clusters=3, random_state=42)
-        clusters = kmeans.fit_predict(X_scaled)
+        train_clusters = kmeans.fit_predict(X_train_scaled)
+        test_clusters = kmeans.predict(X_test_scaled)
 
         pca = PCA(n_components=2)
-        X_pca = pca.fit_transform(X_scaled)
+        X_pca = pca.fit_transform(X_train_scaled)
+
+        self.X_train["cluster"] = train_clusters
+        self.X_test["cluster"] = test_clusters
 
         # save scaler and cluster
         joblib.dump(scaler, "../models/scaler.pkl")
         joblib.dump(kmeans, "../models/kmeans.pkl")
 
-        # add 'cluster' column before 'diagnosis' and save it in database
-        df["cluster"] = clusters
-        cols = df.columns.tolist()
-        cols.insert(cols.index("Diagnosis"), cols.pop(cols.index("cluster")))
-        df = df[cols]
-
-        # split path name and proper save
-        base, ext = os.path.splitext(self.data_path)
-        df.to_csv(f"{base}_clusters{ext}", index=False)
-        print(df.groupby("cluster").mean())
-
         # show clusters visualization
         plt.figure(figsize=(6, 4))
-        plt.scatter(X_pca[:, 0], X_pca[:, 1], c=clusters, cmap='viridis')
+        plt.scatter(X_pca[:, 0], X_pca[:, 1], c=train_clusters, cmap='viridis')
         plt.title("PCA Visualization of Patient Clusters")
         plt.xlabel("First Principal Component")
         plt.ylabel("Second Principal Component")
@@ -276,10 +268,10 @@ class ModelTrainer():
 
 # Tests
 # ---
-clustering_trainer = ModelTrainer("../data/Diabetes_Classification_le.csv")
-clustering_trainer.clustering()
-xgb_trainer = ModelTrainer("../data/Diabetes_Classification_le_clusters.csv")
+
+xgb_trainer = ModelTrainer("../data/Diabetes_Classification_le.csv")
 xgb_trainer.load_data()
+xgb_trainer.clustering()
 # best_params = xgb_trainer.grid_search()
 # print(best_params)
 xgb_trainer.train(n_estimators=600,         # number of trees
